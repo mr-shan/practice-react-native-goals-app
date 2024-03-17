@@ -1,65 +1,81 @@
-import { StyleSheet, Keyboard, View, TextInput } from 'react-native';
+import { Modal, View, TextInput, StyleSheet, Keyboard, Image } from 'react-native';
 import { useState } from 'react';
 
 import Button from '../Buttons/Button';
-
-import type { IGoal } from './../../types/index';
+import { IGoal } from '../../types';
 
 interface IProps {
-  onAddNewGoal: (goal: IGoal) => void
+  isVisible: boolean;
+  onClose: () => void;
+  onAddGoal: (goal: IGoal) => void;
 }
 
 const NewGoalModal = (props: IProps) => {
   const [goalInput, setGoalInput] = useState('');
-
-  const goalInputHandler = (enteredText: string) => {
-    setGoalInput(enteredText);
+  const inputChangeHandler = (text: string) => {
+    setGoalInput(text);
   };
   const addGoalHandler = () => {
     if (goalInput.trim() === '') return;
     const newGoal = goalInput.trim();
-    props.onAddNewGoal({
+    props.onAddGoal({
       title: newGoal,
-      id: Date.now().toString()
-    })
+      id: Date.now().toString(),
+    });
     setGoalInput('');
-    Keyboard.dismiss()
+    Keyboard.dismiss();
+    props.onClose()
   };
   return (
-    <View style={styles.form}>
-      <TextInput
-        placeholder='Add new goal here'
-        onChangeText={goalInputHandler}
-        style={styles.textInput}
-        value={goalInput}
-      />
-      <Button
-        title='Add'
-        onPress={addGoalHandler}
-        variant='text'
-        disabled={goalInput.trim() === ''}
-      />
-    </View>
+    <Modal visible={props.isVisible} animationType='slide'>
+      <View style={styles.container}>
+        <Image source={require('./../../assets/target-1024x1024.png')} style={styles.image}/>
+        <TextInput
+          placeholder='Enter your goal'
+          style={styles.textInput}
+          value={goalInput}
+          onChangeText={inputChangeHandler}
+        />
+        <View style={styles.buttons}>
+          <Button title='Cancel' onPress={props.onClose} />
+          <Button
+            title='Add New Goal'
+            onPress={addGoalHandler}
+            variant='primary'
+            disabled={goalInput.trim() === ''}
+          />
+        </View>
+      </View>
+    </Modal>
   );
-}
+};
 
-export default NewGoalModal
+export default NewGoalModal;
 
 const styles = StyleSheet.create({
-  form: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  container: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 10,
-    gap: 10,
-    marginHorizontal: 5,
+    gap: 50,
+    padding: 20,
   },
   textInput: {
-    flex: 1,
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 18,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    borderWidth: 2,
+    width: '100%',
+  },
+  image: {
+    height: 250,
+    width: 250,
+    marginBottom: 50
+  },
+  buttons: {
+    gap: 10,
+    width: '100%',
   },
 });
